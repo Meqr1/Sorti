@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run migrate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "migrate": "npx prisma migrate deploy && npx prisma generate"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
