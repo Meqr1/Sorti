@@ -1,6 +1,6 @@
 import instance from "@/lib/axios";
 
-export async function signup(state, formData: FormData) {
+export async function signup(_state: unknown, formData: FormData) {
   const response = await instance.post('/api/auth/signup', {
     name: formData.get('name'),
     email: formData.get('email'),
