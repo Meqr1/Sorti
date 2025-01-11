@@ -1,9 +1,9 @@
 'use client'
 import { signup } from "@/pages/auth/actions";
-import { useActionState } from "react";
+import { Key, useActionState } from "react";
 
 export default function Signup() {
-  const [state, action, pending] = useActionState(signup)
+  const [state, action, pending] = useActionState(signup, null)
 
   return (
     <div className="h-screen w-screen flex flex-col items-center justify-center">
@@ -28,7 +28,7 @@ export default function Signup() {
                 <ul className="list-disc">
                   {state.errors.password
                     .filter(Boolean)               // Filter out any empty strings
-                    .map((requirement, index) => ( // Map each item to a list element
+                    .map((requirement: string, index: Key | null | undefined) => ( // Map each item to a list element
                       <li key={index} className="text-red-400">{requirement.trim()}</li> // Trim whitespace and render as <li>
                     ))
                   }
