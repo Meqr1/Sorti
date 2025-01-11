@@ -4,19 +4,10 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "uname" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "xpId" INTEGER,
+    "xp" INTEGER NOT NULL DEFAULT 0,
+    "rankId" INTEGER NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "XP" (
-    "id" SERIAL NOT NULL,
-    "totalXp" INTEGER NOT NULL DEFAULT 0,
-    "lastUpdated" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "userId" INTEGER NOT NULL,
-
-    CONSTRAINT "XP_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -35,8 +26,5 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 -- CreateIndex
 CREATE UNIQUE INDEX "User_uname_key" ON "User"("uname");
 
--- CreateIndex
-CREATE UNIQUE INDEX "XP_userId_key" ON "XP"("userId");
-
 -- AddForeignKey
-ALTER TABLE "XP" ADD CONSTRAINT "XP_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "User" ADD CONSTRAINT "User_rankId_fkey" FOREIGN KEY ("rankId") REFERENCES "Rank"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run migrate && next build",
-    "start": "next start",
-    "migrate": "npx prisma migrate deploy && npx prisma generate"
+    "build": "prisma generate && next build",
+    "start": "next start"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
@@ -14,7 +16,8 @@
     "@supabase/supabase-js": "^2.47.12",
     "next": "15.1.4",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
