@@ -17,7 +17,7 @@ export default async function handler(
       algorithms: ["HS256"],
     })
     res.status(200).json({...payload})
-  } catch (error) {
+  } catch {
     res.status(500).json({"error": "internal server error"})
   }
 }
