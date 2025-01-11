@@ -5,12 +5,6 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const metaCookie = {
-    name: 'session',
-    options: { httpOnly: true, secure: true, path: '/'},
-    duration: 24 * 60 * 60 * 1000
-  }
-
   const cookie = req.cookies.session
 
   const session = await instance.post('/api/auth/decrypt', {

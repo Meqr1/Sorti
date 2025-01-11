@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { SignupFormSchema } from "@/lib/definations";
 import { prisma } from "@/lib/prisma";
 import instance from "@/lib/axios";
+import { hash } from 'bcrypt';
 
 export default async function signup(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -27,10 +28,12 @@ export default async function signup(req: NextApiRequest, res: NextApiResponse) 
   const { name, email, password } = validateResults.data;
 
   try {
-    // Create the new user in the database
+    const hashedpassword = await hash(password, 10)
+
     const user = await prisma.user.create({
       data: {
         email: email,
+        password: hashedpassword,
         uname: name,
         rankId: 1,
         xp: 0,
