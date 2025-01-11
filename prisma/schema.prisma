@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  email String @unique
+  uname String @unique
+  createdAt DateTime @default(now())
+  xp Int @default(0)
+
+  rankId Int
+  rank Rank @relation(fields: [rankId], references: [id])
+}
+
+model Rank {
+  id       Int    @id @default(autoincrement())  // Rank ID
+  rankName String                           // Rank name (Iron, Bronze, etc.)
+  minXp    Int                              // Minimum XP for this rank
+  maxXp    Int                              // Maximum XP for this rank
+  users User[]
+}
+
