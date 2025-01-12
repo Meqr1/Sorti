@@ -1,22 +1,6 @@
 'use client'
 import { useActionState } from "react";
-import instance from "@/lib/axios";
-
-export async function signup(state: unknown, formData: FormData) {
-  const response = await instance.post('/api/auth/signup', {
-    name: formData.get('name'),
-    email: formData.get('email'),
-    password: formData.get('password'),
-  })
-
-  if (response.status !== 200) {
-    return
-  }
-
-  await instance.post('/api/auth/createSession', {
-    id: response.data.userId
-  })
-}
+import { signup } from "./action";
 
 export default function Signup() {
   const [, action, pending] = useActionState(signup, null)
