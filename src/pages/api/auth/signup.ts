@@ -5,14 +5,15 @@ import instance from "@/lib/axios";
 import { hash } from 'bcrypt';
 
 export default async function signup(req: NextApiRequest, res: NextApiResponse) {
+  // Handle only POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
   const formData = req.body;
+  console.log(formData);
 
-  console.log(formData)
-
+  // Validate form data
   const validateResults = SignupFormSchema.safeParse({
     name: formData.name,
     email: formData.email,
@@ -28,27 +29,39 @@ export default async function signup(req: NextApiRequest, res: NextApiResponse) 
   const { name, email, password } = validateResults.data;
 
   try {
-    const hashedpassword = await hash(password, 10)
+    // Check if the rankId 1 exists in the Rank table
+    const rankExists = await prisma.rank.findUnique({
+      where: { id: 1 }, // rankId should be 1
+    });
 
+    if (!rankExists) {
+      // Optional: you could upsert the rank if you want to ensure rankId 1 always exists
+      return res.status(400).json({ error: 'Invalid rankId.' });
+    }
+
+    // Hash the password before saving to the database
+    const hashedPassword = await hash(password, 10);
+
+    // Create the user in the database
     const user = await prisma.user.create({
       data: {
         email: email,
-        password: hashedpassword,
+        password: hashedPassword,
         uname: name,
-        rankId: 1,
-        xp: 0,
+        rankId: 1, // Ensure this rankId exists
+        xp: 0, // Initial XP
       },
       select: {
-        id: true,
+        id: true, // Only returning the user ID for simplicity
       },
     });
 
-    // Create session by posting to session creation API
+    // Optionally create a session for the user
     await instance.post('/api/auth/createSession', {
       id: user.id,
     });
 
-    // Send a success response back to the client
+    // Send success response
     return res.status(201).json({
       success: true,
       userId: user.id,
