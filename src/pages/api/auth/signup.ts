@@ -5,9 +5,12 @@ import instance from "@/lib/axios";
 import { hash } from 'bcrypt';
 
 export default async function signup(req: NextApiRequest, res: NextApiResponse) {
-  // Handle only POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
+  if (req.cookies.session) {
+    return res.status(200).json({ "message": "already logged in"})
   }
 
   const formData = req.body;
