@@ -11,6 +11,10 @@ export default async function middleware(req: NextRequest) {
     const cookieStore = await cookies()
     const sessionCookie = cookieStore.get('session')?.value
 
+    if (!sessionCookie) {
+      return NextResponse.redirect(new URL('/login', req.nextUrl))
+    }
+
     const session = await decrypt(sessionCookie)
 
     if (!session?.userId) {
