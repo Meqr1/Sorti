@@ -3,7 +3,7 @@ import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-const key = new TextEncoder().encode(process.env.AUTH_SECRET) 
+const key = new TextEncoder().encode(process.env.AUTH_SECRET)
 
 const cookie = {
   name: 'session',
@@ -21,7 +21,7 @@ export async function encrypt(payload) {
 
 export async function decrypt(session) {
   try {
-    const {payload} = await jwtVerify(session, key, {
+    const { payload } = await jwtVerify(session, key, {
       algorithms: ['HS256']
     })
     return payload
@@ -37,7 +37,17 @@ export async function createSession(userId) {
   const cookieStore = await cookies()
 
   cookieStore.set(cookie.name, session, {...cookie.options, expires})
-  redirect('/app')
+
+  const cookieHeader = `session=${session}; Path=/; Max-Age=${cookie.duration / 1000}; HttpOnly; Secure=${process.env.NODE_ENV === 'production'}; SameSite=Strict; Expires=${expires.toUTCString()}`;
+
+  return new Response('Session Created', {
+    status: 201,
+    headers: {
+      'Set-Cookie': cookieHeader,  // Setting the cookie in the header
+      'Location': '/app',          // Redirect the user to /app
+    },
+  });
+
 }
 
 export async function verifySession() {

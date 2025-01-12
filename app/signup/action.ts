@@ -1,31 +1,58 @@
 'use server'
-import { prisma } from "../_lib/prisma"
-import { createSession } from "../_lib/session"
+import nodemailer from 'nodemailer';
 import bcrypt from 'bcrypt'
+import { FormState, SignupFormSchema } from "./definations"
+import { encrypt } from '../_lib/mail';
+import { headers } from 'next/headers';
 
-export async function signup(_state: unknown, formData: FormData) {
-  const name = String(formData.get('name'))
-  const email = String(formData.get('email'))
-  const password = String(formData.get('password'))
+export async function signup(_state: FormState, formData: FormData) {
+  const validationResult = SignupFormSchema.safeParse({
+    name: formData.get('name'),
+    email: formData.get('email'),
+    password: formData.get('password')
+  })
 
-  if (!name || !email || !password) {
-    return
+  if (!validationResult.success) {
+    return {
+      errors: validationResult.error.flatten().fieldErrors,
+    };
   }
+
+  const { name, email, password } = validationResult.data
 
   const hashedPassword = await bcrypt.hash(password, 10)
 
-  const user = await prisma.user.create({
-    data: {
-      uname: name,
-      email: email,
-      password: hashedPassword,
-      xp: 0,
-      rankId: 1
-    },
-    select: {
-      id: true
-    }
-  })
+  const encryptedData = encodeURIComponent(await encrypt({ email, name, password: hashedPassword }))
 
-  await createSession(user.id)
+  const headersList = await headers()
+  const domain = headersList.get('x-forwarded-host') || "";
+  const protocol = headersList.get("x-forwarded-proto") || "";
+
+  const verificationUrl = `${protocol}://${domain}/api/verify/${encryptedData}`;
+
+  await sendEmail(email, 'Verify Your Email', `
+                  Please verify your account: <a href="${verificationUrl}">${protocol}://${domain}/api/verify</>
+                  `);
+
+  return { success: true, message: 'Verification email sent. Please check your inbox.' };
 }
+
+export async function sendEmail(to: string, subject: string, html: string) {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'ayanmahajan41@gmail.com',
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: 'sorti.no.reply@gmail.com',
+    to,
+    subject,
+    html,
+  };
+
+  await transporter.sendMail(mailOptions);
+}
+
