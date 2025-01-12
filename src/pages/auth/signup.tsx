@@ -9,12 +9,13 @@ export async function signup(state: unknown, formData: FormData) {
     password: formData.get('password'),
   })
 
-  if (response.data.success && response.data.cookie) {
-    console.log('Signup successful, user ID:', response.data.userId);
-  } else {
-    //console.log('Signup error:', response.data.errors || response.data.error);
-    //return response.data.errors
+  if (response.status !== 200) {
+    return
   }
+
+  await instance.post('/api/auth/createSession', {
+    id: response.data.userId
+  })
 }
 
 export default function Signup() {

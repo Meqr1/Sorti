@@ -26,14 +26,15 @@ export default async function handler(
 
     const { session } = data;
 
-    res.status(200).json({
-      cookie: {
-        name: cookie.name,
-        session: session,
-        expires: expiration.toUTCString(),
-        ...cookie.options,
-      }
+    res.setHeader(
+      "Set-Cookie",
+      `${cookie.name}=${session}; Path=${cookie.options.path}; Expires=${expiration.toUTCString()}; HttpOnly; Secure=${cookie.options.secure ? "True" : "False"}; SameSite=${cookie.options.sameSite}`
+    );
+
+    return res.status(201).json({
+      success: true,
     });
+
   } catch (error) {
     console.error("Failed to create session:", error);
     res.status(500).json({ error: "Failed to create session" });

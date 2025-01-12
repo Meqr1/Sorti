@@ -58,22 +58,10 @@ export default async function signup(req: NextApiRequest, res: NextApiResponse) 
       },
     });
 
-    const response = await instance.post('/api/auth/createSession', {
-      id: user.id,
-    });
-
-    if (response.status === 200 && response.data.cookie !== null) {
-      const cookie = response.data.cookie
-      res.setHeader(
-        "Set-Cookie",
-        `${cookie.name}=${cookie.session}; Path=${cookie.path}; Expires=${cookie.expires}; HttpOnly; Secure=${cookie.secure ? "True" : "False"}; SameSite=${cookie.sameSite}`
-      );
-    }
-
-    return res.status(201).json({
+    return res.status(200).json({
       success: true,
-      userId: user.id,
-    });
+      userId: user.id
+    })
 
   } catch (error) {
     console.error('Signup error:', error);
