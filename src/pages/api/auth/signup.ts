@@ -5,16 +5,14 @@ import instance from "@/lib/axios";
 import { hash } from 'bcrypt';
 
 export default async function signup(req: NextApiRequest, res: NextApiResponse) {
+  console.log('Signup API called'); // Log entry point
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  if (req.cookies.session) {
-    return res.status(200).json({ "message": "already logged in"})
-  }
-
   const formData = req.body;
-  console.log(formData);
+  console.log('Received formData:', formData); // Log the incoming form data
 
   // Validate form data
   const validateResults = SignupFormSchema.safeParse({
@@ -24,6 +22,7 @@ export default async function signup(req: NextApiRequest, res: NextApiResponse) 
   });
 
   if (!validateResults.success) {
+    console.log('Validation failed');
     return res.status(400).json({
       errors: validateResults.error.flatten().fieldErrors,
     });
@@ -38,8 +37,18 @@ export default async function signup(req: NextApiRequest, res: NextApiResponse) 
     });
 
     if (!rankExists) {
-      // Optional: you could upsert the rank if you want to ensure rankId 1 always exists
+      console.log('RankId 1 does not exist');
       return res.status(400).json({ error: 'Invalid rankId.' });
+    }
+
+    // Check if the email already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      console.log('Email already in use');
+      return res.status(400).json({ error: 'Email already in use.' });
     }
 
     // Hash the password before saving to the database
@@ -58,6 +67,8 @@ export default async function signup(req: NextApiRequest, res: NextApiResponse) 
         id: true, // Only returning the user ID for simplicity
       },
     });
+
+    console.log('User created:', user);
 
     // Optionally create a session for the user
     await instance.post('/api/auth/createSession', {
