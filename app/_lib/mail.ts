@@ -11,7 +11,6 @@ export async function encrypt(body: { name: string, email: string, password: str
 
 export async function decrypt(url: string) {
   try {
-    console.log("DECRYPT URL: ", url)
     const { payload } = await jwtVerify(url, key, {
       algorithms: ['HS256']
     })

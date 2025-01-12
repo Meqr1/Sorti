@@ -1,5 +1,5 @@
 import 'server-only'
-import { jwtVerify, SignJWT } from "jose";
+import { JWTPayload, jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -11,7 +11,7 @@ const cookie = {
   duration: 24 * 60 * 60 * 1000
 }
 
-export async function encrypt(payload) {
+export async function encrypt(payload: JWTPayload | undefined) {
   return new SignJWT(payload)
     .setIssuedAt()
     .setExpirationTime('1day')
@@ -19,7 +19,7 @@ export async function encrypt(payload) {
     .sign(key)
 }
 
-export async function decrypt(session) {
+export async function decrypt(session: string) {
   try {
     const { payload } = await jwtVerify(session, key, {
       algorithms: ['HS256']
@@ -30,13 +30,13 @@ export async function decrypt(session) {
   }
 }
 
-export async function createSession(userId) {
+export async function createSession(userId: number) {
   const expires = new Date(Date.now() + cookie.duration)
   const session = await encrypt({ userId, expires })
 
   const cookieStore = await cookies()
 
-  cookieStore.set(cookie.name, session, {...cookie.options, expires})
+  cookieStore.set(cookie.name, session, { ...cookie.options, expires })
 
   const cookieHeader = `session=${session}; Path=/; Max-Age=${cookie.duration / 1000}; HttpOnly; Secure=${process.env.NODE_ENV === 'production'}; SameSite=Strict; Expires=${expires.toUTCString()}`;
 
@@ -51,16 +51,25 @@ export async function createSession(userId) {
 }
 
 export async function verifySession() {
-  const cookieStore = await cookies()
-  const sessionCookie = cookieStore.get(cookie.name)?.value
-  const session = await decrypt(sessionCookie)
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get(cookie.name)?.value;
 
-  if (!session?.userId) {
-    redirect('/signup')
+  if (!sessionCookie) {
+    redirect('/signup');
   }
 
-  return { userId: id }
+  const session = await decrypt(sessionCookie);
+
+  if (!session?.userId) {
+    redirect('/signup');
+  }
+
+  const userId = typeof session.userId === 'number' ? session.userId : Number(session.userId);
+
+  return { userId };
 }
+
+
 
 export async function deleteCookies() {
   const cookiesStore = await cookies()
