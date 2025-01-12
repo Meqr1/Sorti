@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { SignupFormSchema } from "@/lib/definations";
 import { prisma } from "@/lib/prisma";
-import instance from "@/lib/axios";
 import { hash } from 'bcrypt';
 
 export default async function signup(req: NextApiRequest, res: NextApiResponse) {
