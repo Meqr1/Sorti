@@ -1,5 +1,5 @@
 'use client'
-import { Key, useActionState } from "react";
+import { useActionState } from "react";
 import instance from "@/lib/axios";
 
 export async function signup(state: unknown, formData: FormData) {
@@ -18,7 +18,7 @@ export async function signup(state: unknown, formData: FormData) {
 }
 
 export default function Signup() {
-  const [state, action, pending] = useActionState(signup, null)
+  const [, action, pending] = useActionState(signup, null)
 
   return (
     <div className="h-screen w-screen flex flex-col items-center justify-center">
@@ -26,31 +26,14 @@ export default function Signup() {
         <div className="flex-col flex">
           <label className="m-0">Name</label>
           <input name="name" className="bg-black border rounded-xl p-2 px-5 outline-none" placeholder="John Doe" />
-          {state?.errors?.name && <p className="text-red-400">{state.errors.name}</p>}
         </div>
         <div className="flex-col flex">
           <label className="m-0">Name</label>
           <input name="email" className="bg-black border rounded-xl p-2 px-5 outline-none" placeholder="john@example.com" />
-          {state?.errors?.email && <p className="text-red-400">{state.errors.email}</p>}
         </div>
         <div className="flex flex-col">
           <label className="m-0">Name</label>
           <input name="password" className="bg-black border rounded-xl p-2 px-5 outline-none" placeholder="Password" />
-          {state?.errors?.password &&
-            (
-              <>
-                <p className="text-red-400">password must:</p>
-                <ul className="list-disc">
-                  {state.errors.password
-                    .filter(Boolean)               // Filter out any empty strings
-                    .map((requirement: string, index: Key | null | undefined) => ( // Map each item to a list element
-                      <li key={index} className="text-red-400">{requirement.trim()}</li> // Trim whitespace and render as <li>
-                    ))
-                  }
-                </ul>
-              </>
-            )
-          }
         </div>
 
         <button disabled={pending} className="border border-white bg-white text-black rounded-xl p-2 px-5 text-center">
