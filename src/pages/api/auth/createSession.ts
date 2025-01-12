@@ -6,30 +6,37 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method !== "POST") {
-    return res.status(405).json({ "error": "only POST requests allowed" })
+    return res.status(405).json({ "error": "Only POST requests allowed" });
   }
 
   const cookie = {
     name: 'session',
-    options: { httpOnly: true, secure: true, path: '/', sameSite: "Strict" },
-    duration: 24 * 60 * 60 * 1000,
+    options: { httpOnly: true, secure: process.env.NODE_ENV === "production", path: '/', sameSite: "Strict" },
+    duration: 24 * 60 * 60 * 1000,  // 24 hours
+  };
+
+  const expiration = new Date(Date.now() + cookie.duration);
+  const id = req.body.id;
+
+  try {
+    const { data } = await instance.post('/api/auth/encrypt', {
+      id,
+      expiration
+    });
+
+    const { session } = data;
+
+    res.status(200).json({
+      cookie: {
+        name: cookie.name,
+        session: session,
+        expires: expiration.toUTCString(),
+        ...cookie.options,
+      }
+    });
+  } catch (error) {
+    console.error("Failed to create session:", error);
+    res.status(500).json({ error: "Failed to create session" });
   }
-
-  const expiration = new Date(Date.now() + (cookie.duration))
-  const id = req.body.id
-
-  const { data } = await instance.post('/api/auth/encrypt', {
-    id,
-    expiration
-  })
-
-
-  const { session } = data
-
-  res.setHeader(
-    "Set-Cookie",
-    `${cookie.name}=${session}; Path=${cookie.options.path}; Expires=${expiration.toUTCString()}; HttpOnly; Secure=${cookie.options.secure ? "True" : "False"}; SameSite=${cookie.options.sameSite}`
-  );
-
-  res.status(200).json({})
 }
+

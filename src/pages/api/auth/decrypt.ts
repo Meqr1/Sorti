@@ -12,6 +12,10 @@ export default async function handler(
   const session = req.body.session
   const key = new TextEncoder().encode(process.env.AUTH_SECRET)
 
+  if (!session) {
+    return res.status(401).json({"error":"unauthorized access"})
+  }
+
   try {
     const { payload } = await jwtVerify(session, key, {
       algorithms: ["HS256"],

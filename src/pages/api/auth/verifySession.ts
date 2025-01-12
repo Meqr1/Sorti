@@ -8,7 +8,7 @@ export default async function handler(
   const cookie = req.cookies.session
 
   const session = await instance.post('/api/auth/decrypt', {
-    "session": cookie
+    session: cookie
   })
 
   if (!session?.data.id) {
