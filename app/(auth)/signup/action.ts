@@ -2,9 +2,9 @@
 import nodemailer from 'nodemailer';
 import bcrypt from 'bcrypt'
 import { FormState, SignupFormSchema } from "./definations"
-import { encrypt } from '../_lib/mail';
+import { encrypt } from '@/app/_lib/mail';
 import { headers } from 'next/headers';
-import { prisma } from '../_lib/prisma';
+import { prisma } from '@/app/_lib/prisma';
 
 export async function signup(_state: FormState, formData: FormData) {
   const validationResult = SignupFormSchema.safeParse({
@@ -29,7 +29,9 @@ export async function signup(_state: FormState, formData: FormData) {
   if (existingUser) {
     return {
       errors: {
-        email: "Email already in use"
+        email: ["Email already in use"],
+        password: [''],
+        name: ['']
       }
     }
   }

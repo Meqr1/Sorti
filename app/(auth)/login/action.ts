@@ -1,7 +1,7 @@
 'use server'
-import { prisma } from "../_lib/prisma"
+import { prisma } from "@/app/_lib/prisma"
 import bcrypt from 'bcrypt'
-import { createSession } from "../_lib/session"
+import { createSession } from "@/app/_lib/session"
 
 export async function login(_state: unknown, formData: FormData) {
   const email = String(formData.get('email'))

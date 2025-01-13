@@ -20,7 +20,7 @@ export default function Signup() {
         </div>
 
         <button disabled={pending} className="border border-white bg-white text-black rounded-xl p-2 px-5 text-center">
-        {pending ? 'Submitting... ' : 'Sign up' }
+        {pending ? 'Submitting... ' : 'Login' }
         </button>
       </form>
     </div>
