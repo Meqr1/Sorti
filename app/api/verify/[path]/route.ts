@@ -12,8 +12,6 @@ export async function GET(
   try {
     const decryptedData = await decrypt(decodeURIComponent(path));
 
-    console.log(decryptedData)
-
     if (decryptedData === null) {
       return new Response("invalid URL", {
         status: 400

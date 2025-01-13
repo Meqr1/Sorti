@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt'
 import { FormState, SignupFormSchema } from "./definations"
 import { encrypt } from '../_lib/mail';
 import { headers } from 'next/headers';
+import { prisma } from '../_lib/prisma';
 
 export async function signup(_state: FormState, formData: FormData) {
   const validationResult = SignupFormSchema.safeParse({
@@ -23,6 +24,15 @@ export async function signup(_state: FormState, formData: FormData) {
   const hashedPassword = await bcrypt.hash(password, 10)
 
   const encryptedData = encodeURIComponent(await encrypt({ email, name, password: hashedPassword }))
+
+  const existingUser = await prisma.user.findUnique({ where: { email } });
+  if (existingUser) {
+    return {
+      errors: {
+        email: "Email already in use"
+      }
+    }
+  }
 
   const headersList = await headers()
   const domain = headersList.get('x-forwarded-host') || "";
