@@ -8,7 +8,12 @@ export async function login(_state: unknown, formData: FormData) {
   const password = String(formData.get('password'))
 
   if (!email || !password) {
-    return
+    return {
+      error: {
+        email: "invalid Data",
+        password: "invalid Data"
+      }
+    }
   }
 
   const user = await prisma.user.findUnique(
@@ -25,15 +30,26 @@ export async function login(_state: unknown, formData: FormData) {
   )
 
   if (!user) {
-    // no user by that email and password
-    return 
+    return {
+      error: {
+        email: "No account using this email"
+      }
+    }
   }
 
   const isCorrectPassword = await bcrypt.compare(password, user.password)
 
   if (!isCorrectPassword) {
-    return
+    return {
+      error: {
+        password: "Incorrect password"
+      }
+    }
   }
 
   await createSession(user.id)
+
+  return {
+    success: true
+  }
 } 
