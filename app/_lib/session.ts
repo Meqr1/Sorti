@@ -177,11 +177,11 @@ export async function deleteCookies() {
   const cookiesStore = await cookies()
   const refreshToken = cookiesStore.get(cookie.refresh.name)?.value
 
-  //if (refreshToken) {
-    //await revokeRefreshToken(refreshToken)
-  //}
+  if (refreshToken) {
+    await revokeRefreshToken(refreshToken)
+  }
 
-  //cookiesStore.delete(cookie.access.name)
-  //cookiesStore.delete(cookie.refresh.name)
-  //redirect('/signup')
+  cookiesStore.delete(cookie.access.name)
+  cookiesStore.delete(cookie.refresh.name)
+  redirect('/signup')
 }

@@ -1,9 +1,9 @@
 'use server'
 import { prisma } from "@/app/_lib/prisma";
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   console.log("GETREQUEST:::::::::::::::::::::::::::::::::::::;;;;;;;")
   const cookiesStore = await cookies()
   const refreshToken = cookiesStore.get('refresh')?.value
