@@ -9,22 +9,35 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  email String @unique
-  password String
-  uname String @unique
-  createdAt DateTime @default(now())
-  xp Int @default(0)
-
-  rankId Int
-  rank Rank @relation(fields: [rankId], references: [id])
+  id          Int            @id @default(autoincrement())
+  email       String         @unique
+  password    String
+  uname       String         @unique
+  createdAt   DateTime       @default(now())
+  xp          Int           @default(0)
+  rankId      Int
+  rank        Rank          @relation(fields: [rankId], references: [id])
+  refreshTokens RefreshToken[]
 }
 
 model Rank {
-  id       Int    @id @default(autoincrement())  // Rank ID
-  rankName String                           // Rank name (Iron, Bronze, etc.)
-  minXp    Int                              // Minimum XP for this rank
-  maxXp    Int                              // Maximum XP for this rank
-  users User[]
+  id       Int    @id @default(autoincrement())
+  rankName String
+  minXp    Int
+  maxXp    Int
+  users    User[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  isRevoked Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([userId])
 }
 
